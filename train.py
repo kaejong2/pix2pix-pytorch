@@ -8,10 +8,11 @@ from torch.autograd import Variable
 import torchvision.transforms as transforms
 import itertools
 
+from dataloader import *
 from utils import *
 from model import Generator, Discriminator
 from dataloader import data_loader
-
+from torch.utils.tensorboard import SummaryWriter
 
 class pix2pix():
     def __init__(self, args):
@@ -24,8 +25,8 @@ class pix2pix():
         init_weight(self.D, init_type="normal", init_gain=0.02)
 
 
-        self.optimizerG = optim.Adam(self.G.parameters(), lr=args.lr, betas=(args.b1, args.b2))
-        self.optimizerD = optim.Adam(self.D.parameters(), lr=args.lr, betas=(args.b1, args.b2))
+        self.optimizerG = torch.optim.Adam(self.G.parameters(), lr=args.lr, betas=(args.b1, args.b2))
+        self.optimizerD = torch.optim.Adam(self.D.parameters(), lr=args.lr, betas=(args.b1, args.b2))
         
         self.criterion_GAN = torch.nn.BCEWithLogitsLoss().to(device=args.device)
         self.criterion_L1 =  torch.nn.L1Loss().to(device=args.device)

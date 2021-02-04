@@ -5,7 +5,7 @@ from train import pix2pix
 def Arguments():
     parser = argparse.ArgumentParser(description='Arguments for pix2pix.')
 
-    parser.add_argument('--gpu', type=int, default=2, help='GPU number to use.')
+    parser.add_argument('--gpu', type=int, default=3, help='GPU number to use.')
     # Dataset arguments
     parser.add_argument('--batch_size', type=int, default=10, help='Integer value for batch size.')
     parser.add_argument('--image_size', type=int, default=256, help='Integer value for number of points.')
@@ -22,7 +22,7 @@ def Arguments():
     # Training arguments
     parser.add_argument('--epoch', type=int, default=0, help='Epoch to start training from.')
     parser.add_argument('--num_epochs', type=int, default=200, help='Number of epochs of training.')
-    parser.add_argument('--data_path', type=str, default='/mnt/hdd/LJJ/pix2pix/monet2photo/', help='Checkpoint path.')
+    parser.add_argument('--data_path', type=str, default='/mnt/hdd/LJJ/pix2pix/facades/', help='Checkpoint path.')
     parser.add_argument('--ckpt_path', type=str, default='/mnt/hdd/LJJ/pix2pix/ckpt/', help='Checkpoint path.')
     parser.add_argument('--result_path', type=str, default='/mnt/hdd/LJJ/pix2pix/result/', help='Generated results path.')
     
