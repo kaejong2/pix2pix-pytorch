@@ -21,7 +21,7 @@
 - tensorboardX           2.1
 - tqdm                   4.56.0
 
-## Training
+## Train
 
     $ python main.py --mode train 
 
