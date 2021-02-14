@@ -93,10 +93,5 @@ class pix2pix():
                 print("Tensorboard")
                 pix2pix_save(ckpt_path, self.G, self.D, self.optimizerG, self.optimizerD, epoch)
 
-                self.writer_train.add_images('input', data, self.args.num_epochs * (epoch - 1) + _iter, dataformats='NHWC')
-                self.writer_train.add_images('output', output, self.args.num_epochs * (epoch - 1) + _iter, dataformats='NHWC')
-                self.writer_train.add_images('label', label, self.args.num_epochs * (epoch - 1) + _iter, dataformats='NHWC')       
-
-
 
 
