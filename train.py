@@ -12,7 +12,6 @@ from dataloader import *
 from utils import *
 from model import Generator, Discriminator
 from dataloader import data_loader
-from torch.utils.tensorboard import SummaryWriter
 
 class pix2pix():
     def __init__(self, args):
@@ -89,8 +88,7 @@ class pix2pix():
                        loss_G_GAN, loss_G_l1,
                        loss_D_real, loss_D_fake))
         
-            if epoch % 100==0:
-                print("Tensorboard")
+            if epoch % 99==0:
                 pix2pix_save(ckpt_path, self.G, self.D, self.optimizerG, self.optimizerD, epoch)
 
 
