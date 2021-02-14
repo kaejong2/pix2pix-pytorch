@@ -35,12 +35,6 @@ def init_weight(net, init_type='normal', init_gain=0.02):
     print('initialize network with %s' % init_type)
     net.apply(init_func)  # apply the initialization function <init_func>
 
-def save(ckpt_dir, netG_A2B, netG_B2A, netD_A, netD_B, optimG, optimD, epoch):
-    if not os.path.exists(ckpt_dir):
-        os.makedirs(ckpt_dir)
-    
-    torch.save({'netG_A2B' : netG_A2B.state_dict(), 'netG_B2A' : netG_B2A.state_dict(), 'netD_A':netD_A.state_dict(), 'netD_B': netD_B.state_dict(), 'optimG':optimG.state_dict(), 'optimD': optimD.state_dict()},
-    "%s/model_epoch%d.pth" % (ckpt_dir,epoch))
 
 def pix2pix_save(ckpt_dir, G, D, optimizerG, optimizerD, epoch):
     if not os.path.exists(ckpt_dir):
@@ -49,50 +43,13 @@ def pix2pix_save(ckpt_dir, G, D, optimizerG, optimizerD, epoch):
     torch.save({'G' : G.state_dict(), 'D': D.state_dict(), 'optimG':optimizerG.state_dict(), 'optimD': optimizerD.state_dict()},
     "%s/model_epoch%d.pth" % (ckpt_dir,epoch))
 
-def load(ckpt_dir, netG_A2B, netG_B2A, netD_A, netD_B, optimG, optimD):
-    if not os.path.exists(ckpt_dir):
-        epoch = 0
-        return netG_A2B, netG_B2A, netD_A, netD_B, optimG, optimD, epoch
 
-    device = torch.device('cuda:'+str(args.gpu) if torch.cuda.is_available() else 'cpu')
-
-    ckpt_lst = os.listdir(ckpt_dir)
-    ckpt_lst = [f for f in ckpt_lst if f.endswich('pth')]
-    ckpt_lst.sort(key=lambda f: int(''.join(filter(str.indigit, f))))
-
-    dict_model = torch.load('%s/%s'% (ckpt_dir, ckpt_lst[-1]), map_location=device)
-
-    netG_A2B.load_state_dict(dict_model['netG_A2B'])
-    netG_B2A.load_state_dict(dict_model['netG_B2A'])
-    netD_A.load_state_dict(dict_model['netD_A'])
-    netD_B.load_state_dict(dict_model['netD_B'])
-    optimG.load_state_dict(dict_model['optimG'])
-    optimD.load_state_dict(dict_model['optimD'])
-    epoch = int(ckpt_lst[-1].split('epoch')[1].split('.pth')[0])
-
-    return netG_A2B, netG_B2A, netD_A, netD_B, optimG, optimD, epoch
-
-def pix2pix_load(ckpt_dir, G, D, optimizerG, optimizerD, epoch):
-    if not os.path.exists(ckpt_dir):
-        epoch = 0
-        return G, D, optimizerG, optimizerD, epoch
-    epoch = []
-    ckpt_list = os.listdir(ckpt_dir)
-    for i in range(len(ckpt_list)):
-        epoch += [int(ckpt_list[i].split('epoch')[1].split('.pth')[0])]
-    epoch.sort()
-    epoch[-1] = 19
-
-
-    dict_model = torch.load("%s/model_epoch%d.pth" % (ckpt_dir,epoch[-1]))
-
-    G.load_state_dict(dict_model['G'])
-    D.load_state_dict(dict_model['D'])
-    optimizerG.load_state_dict(dict_model['optimG'])
-    optimizerD.load_state_dict(dict_model['optimD'])
-
-
-    return G, D, optimizerG, optimizerD, epoch[-1]
+def pix2pix_load(ckpt_path, device):
+    ckpt_lst = os.listdir(ckpt_path)
+    ckpt_lst.sort()
+    dict_model = torch.load('%s/%s'% (ckpt_path, ckpt_lst[-1]), map_location=device)
+    print('Loading checkpoint from %s/%s succeed' % (ckpt_path, ckpt_lst[-1]))
+    return dict_model
 
 def set_requires_grad(nets, requires_grad=False):
         if not isinstance(nets, list):

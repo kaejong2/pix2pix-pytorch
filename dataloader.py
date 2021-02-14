@@ -3,115 +3,46 @@ import torch
 from PIL import Image
 import random
 import os
-from skimage import transform
+from torch.utils.data import Dataset, DataLoader
 import matplotlib.pyplot as plt
+import torchvision.transforms as transforms
+import glob
 
-class data_loader(torch.utils.data.Dataset):
-    def __init__(self, data_dir, transform=[]):
-        self.data_dir = data_dir
-        self.transform = transform
-        self.data_list = os.listdir(data_dir)
+class ImageDataset(Dataset):
+    def __init__(self, data_path, transforms_=None, mode='train'):
+        self.transform = transforms_
+        self.data_path = data_path
+        self.files = sorted(glob.glob(os.path.join(data_path,'%s' % mode)+'/*'))
+        self.transform = transforms_
 
     def __getitem__(self, index):
-        data = plt.imread(os.path.join(self.data_dir, self.data_list[index]))[:, :, :3]
+        img = Image.open(self.files[index % len(self.files)])
 
-        if data.dtype == np.uint8:
-            data = data / 255.0
+        data_img = img.crop((0, 0, img.width//2, img.height))
+        label_img = img.crop((img.width//2, 0, img.width, img.height))
 
-        boundary = int(data.shape[1]/2)
-
-        dataA = data[:, :boundary, :]
-        dataB = data[:, boundary:, :]
-
-        data = {'dataA': dataB, 'dataB': dataA}
-        if self.transform:
-            data = self.transform(data)
-
-        return data
+        data_img = self.transform(data_img)
+        label_img = self.transform(label_img)
+        
+        return {'data_img': data_img, 'label_img': label_img}
 
     def __len__(self):
-        return len(self.data_list)
+        return len(self.files)
 
-
-class ToTensor(object):
-    def __call__(self, data):
-        dataA, dataB = data['dataA'], data['dataB']
-        dataA = dataA.transpose((2, 0, 1)).astype(np.float32)
-        dataB = dataB.transpose((2, 0, 1)).astype(np.float32)
-        return {'dataA': torch.from_numpy(dataA), 'dataB': torch.from_numpy(dataB)}
-
-class Normalize(object):
-    def __call__(self, data):
-        dataA, dataB = data['dataA'], data['dataB']
-        dataA = 2 * dataA - 1
-        dataB = 2 * dataB - 1
-        return {'dataA': dataA, 'dataB': dataB}
-
-class RandomFlip(object):
-    def __call__(self, data):
-        dataA, dataB = data['dataA'], data['dataB']
-
-        if np.random.rand() > 0.5:
-            dataA = np.fliplr(dataA)
-            dataB = np.fliplr(dataB)
-
-        return {'dataA': dataA, 'dataB': dataB}
-
-class Rescale(object):
-
-  def __init__(self, output_size):
-    assert isinstance(output_size, (int, tuple))
-    self.output_size = output_size
-
-  def __call__(self, data):
-    dataA, dataB = data['dataA'], data['dataB']
-
-    h, w = dataA.shape[:2]
-
-    if isinstance(self.output_size, int):
-      if h > w:
-        new_h, new_w = self.output_size * h / w, self.output_size
-      else:
-        new_h, new_w = self.output_size, self.output_size * w / h
+def data_loader(args, mode="train"):
+    # Dataset loader
+    if mode=='test':
+        transforms_ = transforms.Compose([transforms.Resize((256, 256), Image.BICUBIC), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     else:
-      new_h, new_w = self.output_size
+        transforms_ = transforms.Compose(
+            [transforms.Resize((286,286), Image.BICUBIC), 
+            transforms.RandomCrop((256, 256)),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    
+    dataset = ImageDataset(args.data_path, transforms_=transforms_, mode = mode)
 
-    new_h, new_w = int(new_h), int(new_w)
+    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=2)
+    return dataloader
 
-    dataA = transform.resize(dataA, (new_h, new_w))
-    dataB = transform.resize(dataB, (new_h, new_w))
-
-    return {'dataA': dataA, 'dataB': dataB}
-
-
-class RandomCrop(object):
-  def __init__(self, output_size):
-    assert isinstance(output_size, (int, tuple))
-    if isinstance(output_size, int):
-      self.output_size = (output_size, output_size)
-    else:
-      assert len(output_size) == 2
-      self.output_size = output_size
-
-  def __call__(self, data):
-    dataA, dataB = data['dataA'], data['dataB']
-
-    h, w = dataA.shape[:2]
-    new_h, new_w = self.output_size
-
-    top = np.random.randint(0, h - new_h)
-    left = np.random.randint(0, w - new_w)
-
-    dataA = dataA[top: top + new_h, left: left + new_w]
-    dataB = dataB[top: top + new_h, left: left + new_w]
-
-    return {'dataA': dataA, 'dataB': dataB}
-
-
-class ToNumpy(object):
-    def __call__(self, data):
-        return data.to('cpu').detach().numpy().transpose(0, 2, 3, 1)
-
-class Denomalize(object):
-    def __call__(self, data):
-        return (data + 1) / 2
