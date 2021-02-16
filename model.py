@@ -130,9 +130,9 @@ class Discriminator(nn.Module):
                                norm="Instance", act="LeakyReLU", drop=None)
         self.layer3 = Encoder(in_features=128, out_features=256, kernel_size=4, padding=1, stride=2,
                                norm="Instance", act="LeakyReLU", drop=None)
-        self.layer4 = Encoder(in_features=256, out_features=512, kernel_size=4, padding=1, stride=2,
+        self.layer4 = Encoder(in_features=256, out_features=512, kernel_size=4, padding=1, stride=1,
                                norm="Instance", act="LeakyReLU", drop=None)
-        self.RF_pad = nn.ZeroPad2d((1,0,1,0))
+        # self.RF_pad = nn.ZeroPad2d((1,1,1,1)) padding =2 
         self.final_layer = nn.Conv2d(512, 1, 4, padding=1, bias=False)
 
 
@@ -141,7 +141,7 @@ class Discriminator(nn.Module):
         x = self.layer2(x)
         x = self.layer3(x)
         x = self.layer4(x)
-        x = self.RF_pad(x)
+        # x = self.RF_pad(x)
         x = self.final_layer(x)
      
         return x        
