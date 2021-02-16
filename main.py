@@ -35,7 +35,6 @@ def Arguments():
     return args
 
 if __name__ == '__main__':
-
     args = Arguments()
     args.device = torch.device('cuda:'+str(args.gpu) if torch.cuda.is_available() else 'cpu')
 
