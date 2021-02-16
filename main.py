@@ -1,7 +1,7 @@
 import argparse
 import torch
 from train import pix2pix
-from test import *
+# from test import *
 
 def Arguments():
     parser = argparse.ArgumentParser(description='Arguments for pix2pix.')

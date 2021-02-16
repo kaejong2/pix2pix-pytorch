@@ -7,7 +7,7 @@ class Encoder(nn.Module):
         super(Encoder, self).__init__()
 
         block = []
-        block += [nn.Conv2d(in_features, out_features, kernel_size=kernel_size, stride=stride, padding=padding)]
+        block += [nn.Conv2d(in_features, out_features, kernel_size=kernel_size, stride=stride, padding=padding, bias=False)]
 
         if not norm is False:
             if norm == "Batch":
@@ -37,7 +37,7 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
 
         block = []
-        block += [nn.ConvTranspose2d(in_features, out_features, kernel_size=kernel_size, stride=stride, padding=padding)]
+        block += [nn.ConvTranspose2d(in_features, out_features, kernel_size=kernel_size, stride=stride, padding=padding, bias=False)]
 
         if not norm is False:
             if norm == "Batch":
@@ -96,7 +96,7 @@ class Generator(nn.Module):
         self.dec7 = Decoder(in_features=2*128, out_features=64, kernel_size=4, padding=1, stride=2,
                                norm="Instance", act="ReLU", drop=False)
         self.dec8 = Decoder(in_features=2*64, out_features=3, kernel_size=4, padding=1, stride=2,
-                               norm=False, act=False, drop=False)
+                               norm=False, act='Tanh', drop=False)
 
 
     def forward(self, x):
@@ -124,7 +124,7 @@ class Generator(nn.Module):
 class Discriminator(nn.Module):
     def __init__(self, output_channels):
         super(Discriminator, self).__init__()
-        self.layer1 = Encoder(in_features=2*3, out_features=64, kernel_size=4, padding=1, stride=2,
+        self.layer1 = Encoder(in_features=3*2, out_features=64, kernel_size=4, padding=1, stride=2,
                                norm=None, act="LeakyReLU", drop=None)
         self.layer2 = Encoder(in_features=64, out_features=128, kernel_size=4, padding=1, stride=2,
                                norm="Instance", act="LeakyReLU", drop=None)
@@ -132,6 +132,7 @@ class Discriminator(nn.Module):
                                norm="Instance", act="LeakyReLU", drop=None)
         self.layer4 = Encoder(in_features=256, out_features=512, kernel_size=4, padding=1, stride=2,
                                norm="Instance", act="LeakyReLU", drop=None)
+        self.RF_pad = nn.ZeroPad2d((1,0,1,0))
         self.final_layer = nn.Conv2d(512, 1, 4, padding=1, bias=False)
 
 
@@ -140,6 +141,7 @@ class Discriminator(nn.Module):
         x = self.layer2(x)
         x = self.layer3(x)
         x = self.layer4(x)
+        x = self.RF_pad(x)
         x = self.final_layer(x)
      
         return x        

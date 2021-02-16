@@ -18,8 +18,8 @@ class ImageDataset(Dataset):
     def __getitem__(self, index):
         img = Image.open(self.files[index % len(self.files)])
 
-        data_img = img.crop((0, 0, img.width//2, img.height))
-        label_img = img.crop((img.width//2, 0, img.width, img.height))
+        label_img = img.crop((0, 0, img.width//2, img.height))
+        data_img = img.crop((img.width//2, 0, img.width, img.height))
 
         data_img = self.transform(data_img)
         label_img = self.transform(label_img)

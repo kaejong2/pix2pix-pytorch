@@ -81,3 +81,13 @@ def set_requires_grad(nets, requires_grad=False):
         if net is not None:
             for param in net.parameters():
                 param.requires_grad = requires_grad
+
+
+# def sample_images(batches_done):
+#     """Saves a generated sample from the validation set"""
+#     imgs = next(iter(val_dataloader))
+#     data = input['data_img'].to(device=self.args.device)
+#     label = input['label_img'].to(device=self.args.device)
+#     fake = generator(data)
+#     img_sample = torch.cat((data.data, fake.data, label.data), -2)
+#     save_image(img_sample, "images/%s/%s.png" % (opt.dataset_name, batches_done), nrow=5, normalize=True)
