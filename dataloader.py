@@ -48,5 +48,5 @@ def data_loader(args, mode="train"):
         transforms_ = transforms.Compose([transforms.Resize((256, 256), Image.BICUBIC), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
         dataset = ImageDataset(data_path, transforms_=transforms_, mode = mode)
 
-        dataloader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=2)
+        dataloader = DataLoader(dataset, batch_size=7, shuffle=False, num_workers=2)
         return dataloader

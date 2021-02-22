@@ -9,7 +9,7 @@ import torch
 import torchvision
 import numpy as np
 from torch.optim import lr_scheduler
-
+from torchvision.utils import make_grid
 
 
 def init_weight(net, init_type='normal', init_gain=0.02):
@@ -59,22 +59,17 @@ def set_requires_grad(nets, requires_grad=False):
                     param.requires_grad = requires_grad
 
 
-# def save_image(image_tensor):
-#     img = image_tensor.to('cpu').detach().numpy().transpose(0,2,3,1)
-#     img = img/2.0 *255.0
-#     img = img.clip(0,255)
-#     img = img.astype(np.uint8)
-    
-#     return img
-
-
 
 def sample_images(args, batches_done, G, dataloader):
-    save_path = os.path.join(args.root_path, args.result_path)
+    save_path = os.path.join(args.root_path, args.result_path+"_test")
 
     imgs = next(iter(dataloader))
     data = imgs['data_img'].to(device=args.device)
     label = imgs['label_img'].to(device=args.device)
     fake = G(data)
-    result = (torch.cat((data.data, fake.data, label.data),-2))
-    torchvision.utils.save_image(result, save_path+'/sample'+str(batches_done)+'.jpg', nrow=4, normalize=True)
+    data = make_grid(data, nrow=7, normalize=True)
+    fake = make_grid(fake, nrow=7, normalize=True)
+    label = make_grid(label, nrow=7, normalize=True)
+
+    result = (torch.cat((data.data, fake.data, label.data),1))
+    torchvision.utils.save_image(result, save_path+'/sample'+str(batches_done)+'.jpg', nrow=3, normalize=False)

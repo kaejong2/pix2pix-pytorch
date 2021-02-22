@@ -7,7 +7,7 @@ def Arguments():
     parser = argparse.ArgumentParser(description='Arguments for pix2pix.')
 
     parser.add_argument('--gpu', type=int, default=1, help='GPU number to use.')
-    parser.add_argument('--mode', type=str, default='train', choices=["train", "test"], help='Run type.')
+    parser.add_argument('--mode', type=str, default='test', choices=["train", "test"], help='Run type.')
     # Dataset arguments
     parser.add_argument('--batch_size', type=int, default=1, help='Integer value for batch size.')
     parser.add_argument('--image_size', type=int, default=256, help='Integer value for number of points.')

@@ -10,10 +10,11 @@ import torchvision
 from model import Generator, Discriminator
 
 def test(args):
+    ckpt_path = os.path.join(args.root_path, args.ckpt_path)
     G = Generator(3).to(device=args.device)
 
     try:
-        ckpt = pix2pix_load(args.ckpt_path, args.device)
+        ckpt = pix2pix_load(ckpt_path, args.device)
         G.load_state_dict(ckpt['G'])
     except:
         print('Failed to load checkpoint')
