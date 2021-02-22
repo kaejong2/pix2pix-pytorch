@@ -4,7 +4,7 @@
 #### Title
 [Image-to-Image Translation with Conditional Adversarial Networks](https://arxiv.org/abs/1611.07004)
 
-<img src="./git_img/Structure_diagram.png"  width="400" height="250">  <img src="./git_img/pix2pix_G.png"  width="400" height="250"> 
+<img src="./git_img/Structure_diagram.png"  width="500" height="300">  <img src="./git_img/pix2pix_G.png"  width="500" height="300"> 
 
 ---
 
