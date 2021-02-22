@@ -47,9 +47,9 @@
 ## Results
   ![alt text](./git_img/retiinal_result.png "Generated vessel to fundus by pix2pixGAN")
 
-    1st row: input - Vessel segmentation map 
+    1st row: input  - Vessel segmentation map 
     2nd row: output - Fake Fundus Photo
-    3th row: output - real Fundus Photo
+    3th row: input  - real Fundus Photo
 
 ## Directories structure
 
