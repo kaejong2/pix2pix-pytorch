@@ -44,16 +44,12 @@
 * To test using trained network, set **ckpt_path** defined in the **train** phase.
 * Generated images are saved in the **images** subfolder along with **[result directory]** folder.
 
+## Results
+  ![alt text](./git_img/retinal_result.png "Generated vessel to fundus by pix2pixGAN")
 
-<!-- ## Tensorboard
-
-    $ tensorboard --logdir /log/* --port 6006
-                  
-After the above comment executes, go **http://localhost:6006**
-
-* You can change **[(optional) 4 digit port number]**.
-* Default 4 digit port number is **6006**.
- -->
+    1st row: input - Vessel segmentation map 
+    2nd row: output - Fake Fundus Photo
+    3th row: output - real Fundus Photo
 
 ## Directories structure
 
@@ -102,5 +98,3 @@ After the above comment executes, go **http://localhost:6006**
                 |   ...
 
                 
-## Results
-  
