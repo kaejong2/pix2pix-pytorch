@@ -22,33 +22,48 @@ class pix2pix():
         
         init_weight(self.G, init_type=self.args.init_weight, init_gain=0.02)
         init_weight(self.D, init_type=self.args.init_weight, init_gain=0.02)
-
+        
         self.optimizerG = torch.optim.Adam(self.G.parameters(), lr=args.lr, betas=(args.b1, args.b2))
         self.optimizerD = torch.optim.Adam(self.D.parameters(), lr=args.lr, betas=(args.b1, args.b2))
         
-        self.criterion_GAN = torch.nn.BCEWithLogitsLoss().to(device=args.device)
-        self.criterion_L1 =  torch.nn.L1Loss().to(device=args.device)
+        self.criterion_GAN = torch.nn.MSELoss().to(device=args.device)
+        self.criterion_L1  = torch.nn.L1Loss().to(device=args.device)
 
         self.dataloader = data_loader(self.args, mode=args.mode)
-
+        self.val_dataloader = data_loader(args, mode='test')
 
     def run(self, ckpt_path=None, result_path=None):
+        self.G.train()
+        self.D.train()
         for epoch in range(self.args.epoch+1, self.args.num_epochs):
-            self.G.train()
-            self.D.train()
-            for _iter, input in enumerate(self.dataloader,1):
-                data = input['data_img'].to(device=self.args.device)
-                label = input['label_img'].to(device=self.args.device)
+            for _iter, imgs in enumerate(self.dataloader, 1):
+                data = imgs['data_img'].to(device=self.args.device)
+                label = imgs['label_img'].to(device=self.args.device)
                 output = self.G(data)
+
+                
+                #################################################
+                #              Train Generator
+                #################################################
+                self.optimizerG.zero_grad()
+
+                fake = torch.cat((output, data), dim=1)
+                pred_fake = self.D(fake.detach())
+
+                loss_G_GAN = self.criterion_GAN(pred_fake, torch.ones_like(pred_fake))
+                loss_G_l1 = self.criterion_L1(output, label)
+                loss_G = loss_G_GAN + (100*loss_G_l1)
+
+                loss_G.backward()
+                self.optimizerG.step()
 
                 #################################################
                 #              Train Discriminator
                 #################################################
-                set_requires_grad(self.D, True)
                 self.optimizerD.zero_grad()
 
-                real = torch.cat((data, label), dim=1)
-                fake = torch.cat((data, output), dim=1)
+                real = torch.cat((label, data), dim=1)
+                fake = torch.cat((output, data), dim=1)
 
                 pred_real = self.D(real)
                 pred_fake = self.D(fake.detach())
@@ -60,26 +75,11 @@ class pix2pix():
                 loss_D.backward()
                 self.optimizerD.step()
                 
-                fake = torch.cat((data, output), dim=1)
-                set_requires_grad(self.D, False)
-                #################################################
-                #              Train Generator
-                #################################################
-                self.optimizerG.zero_grad()
-
-                pred_fake = self.D(fake)
-
-                loss_G_GAN = self.criterion_GAN(pred_fake, torch.ones_like(pred_real))
-                loss_G_l1 = self.criterion_L1(output, label)
-                loss_G = loss_G_GAN + (100*loss_G_l1)
-
-                loss_G.backward()
-                self.optimizerG.step()
-
                 #################################################
                 #              Training Process
                 ################################################# 
-                # sys.stdout.write("\r")              
+                # sys.stdout.write("\r")            
+                batches_done = epoch * len(self.dataloader) + _iter
                 print("Train : Epoch %02d/ %02d | Batch %03d / %03d | "
                        "Generator GAN %.4f | "
                        "Generator L1 %.4f | "
@@ -88,9 +88,12 @@ class pix2pix():
                        (epoch, self.args.num_epochs, _iter, len(self.dataloader),
                        loss_G_GAN, loss_G_l1,
                        loss_D_real, loss_D_fake))
-        
-            if epoch % 99==0:
-                pix2pix_save(ckpt_path, self.G, self.D, self.optimizerG, self.optimizerD, epoch)
+                if batches_done % self.args.sample_save ==0:
+                    print("sample save")
+                    sample_images(self.args, batches_done, self.G, self.val_dataloader)
+            
+            if epoch % 10==0:
+                pix2pix_save(self.args, self.G, self.D, self.optimizerG, self.optimizerD, epoch)
 
 
 

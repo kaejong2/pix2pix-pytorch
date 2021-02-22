@@ -6,7 +6,7 @@ import os
 from torch.nn import init
 from torch.autograd import Variable
 import torch
-
+import torchvision
 import numpy as np
 from torch.optim import lr_scheduler
 
@@ -36,12 +36,11 @@ def init_weight(net, init_type='normal', init_gain=0.02):
     net.apply(init_func)  # apply the initialization function <init_func>
 
 
-def pix2pix_save(ckpt_dir, G, D, optimizerG, optimizerD, epoch):
-    if not os.path.exists(ckpt_dir):
-        os.makedirs(ckpt_dir)
+def pix2pix_save(args, G, D, optimizerG, optimizerD, epoch):
+    save_path = os.path.join(args.root_path, args.ckpt_path)
     
     torch.save({'G' : G.state_dict(), 'D': D.state_dict(), 'optimG':optimizerG.state_dict(), 'optimD': optimizerD.state_dict()},
-    "%s/model_epoch%d.pth" % (ckpt_dir,epoch))
+    "%s/model_epoch%d.pth" % (save_path,epoch))
 
 
 def pix2pix_load(ckpt_path, device):
@@ -60,34 +59,22 @@ def set_requires_grad(nets, requires_grad=False):
                     param.requires_grad = requires_grad
 
 
-def save_image(image_tensor):
-    img = image_tensor.to('cpu').detach().numpy().transpose(0,2,3,1)
-    img = img/2.0 *255.0
-    img = img.clip(0,255)
-    img = img.astype(np.uint8)
+# def save_image(image_tensor):
+#     img = image_tensor.to('cpu').detach().numpy().transpose(0,2,3,1)
+#     img = img/2.0 *255.0
+#     img = img.clip(0,255)
+#     img = img.astype(np.uint8)
     
-    return img
+#     return img
 
 
-def set_requires_grad(nets, requires_grad=False):
-    """Set requies_grad=Fasle for all the networks to avoid unnecessary computations
-    Parameters:
-        nets (network list)   -- a list of networks
-        requires_grad (bool)  -- whether the networks require gradients or not
-    """
-    if not isinstance(nets, list):
-        nets = [nets]
-    for net in nets:
-        if net is not None:
-            for param in net.parameters():
-                param.requires_grad = requires_grad
 
+def sample_images(args, batches_done, G, dataloader):
+    save_path = os.path.join(args.root_path, args.result_path)
 
-# def sample_images(batches_done):
-#     """Saves a generated sample from the validation set"""
-#     imgs = next(iter(val_dataloader))
-#     data = input['data_img'].to(device=self.args.device)
-#     label = input['label_img'].to(device=self.args.device)
-#     fake = generator(data)
-#     img_sample = torch.cat((data.data, fake.data, label.data), -2)
-#     save_image(img_sample, "images/%s/%s.png" % (opt.dataset_name, batches_done), nrow=5, normalize=True)
+    imgs = next(iter(dataloader))
+    data = imgs['data_img'].to(device=args.device)
+    label = imgs['label_img'].to(device=args.device)
+    fake = G(data)
+    result = (torch.cat((data.data, fake.data, label.data),-2))
+    torchvision.utils.save_image(result, save_path+'/sample'+str(batches_done)+'.jpg', nrow=4, normalize=True)

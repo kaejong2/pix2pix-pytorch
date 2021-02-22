@@ -18,8 +18,8 @@ class ImageDataset(Dataset):
     def __getitem__(self, index):
         img = Image.open(self.files[index % len(self.files)])
 
-        label_img = img.crop((0, 0, img.width//2, img.height))
-        data_img = img.crop((img.width//2, 0, img.width, img.height))
+        label_img = img.crop((0, 0, img.width/2, img.height))
+        data_img = img.crop((img.width/2, 0, img.width, img.height))
 
         data_img = self.transform(data_img)
         label_img = self.transform(label_img)
@@ -31,18 +31,22 @@ class ImageDataset(Dataset):
 
 def data_loader(args, mode="train"):
     # Dataset loader
-    if mode=='test':
-        transforms_ = transforms.Compose([transforms.Resize((256, 256), Image.BICUBIC), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-    else:
+    data_path = os.path.join(args.root_path,args.data_path)
+    if mode=='train':
         transforms_ = transforms.Compose(
-            [transforms.Resize((286,286), Image.BICUBIC), 
-            transforms.RandomCrop((256, 256)),
-            transforms.RandomHorizontalFlip(),
+            [transforms.Resize((256,256), Image.BICUBIC), 
+            # transforms.RandomCrop((256, 256)),
+            # transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     
-    dataset = ImageDataset(args.data_path, transforms_=transforms_, mode = mode)
+        dataset = ImageDataset(data_path, transforms_=transforms_, mode = mode)
 
-    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=2)
-    return dataloader
+        dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=2)
+        return dataloader
+    else: 
+        transforms_ = transforms.Compose([transforms.Resize((256, 256), Image.BICUBIC), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        dataset = ImageDataset(data_path, transforms_=transforms_, mode = mode)
 
+        dataloader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=2)
+        return dataloader

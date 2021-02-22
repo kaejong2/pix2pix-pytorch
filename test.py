@@ -17,17 +17,7 @@ def test(args):
         G.load_state_dict(ckpt['G'])
     except:
         print('Failed to load checkpoint')
-    
 
-    dataloader = data_loader(args, mode='test')
-    
-    with torch.no_grad():
-        G.eval()
-        for _iter, input in enumerate(dataloader):
-            data = input['data_img'].to(device=args.device)
-            label = input['label_img'].to(device=args.device)
-            fake = G(data)
-
-            result = (torch.cat((data.data, fake.data, label.data),-2)
-
-            # torchvision.utils.save_image(result, args.result_path+'sample'+str(_iter)+'.jpg', nrow=4, normalize=True)
+    dataloader = data_loader(args, mode = 'test')
+    for i in range(len(dataloader)):
+       sample_images(args, i, G, dataloader)
