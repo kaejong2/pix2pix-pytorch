@@ -3,7 +3,12 @@
 #### Title
 [Image-to-Image Translation with Conditional Adversarial Networks](https://arxiv.org/abs/1611.07004)
 
-![alt text-1](./git_img/Structure_diagram.png "Structure diagram"){: width="100%" height="100%"}  ![alt text-2](./git_img/pix2pix_G.png "Generator : U-Net")
+![alt text-1](./git_img/Structure_diagram.png "Structure diagram" )
+
+<img src="https://github.com/kaejong2/pix2pix-pytorch/blob/master/git_img/Structure_diagram.png", width="300" height="200"> 
+
+
+![alt text-2](./git_img/pix2pix_G.png "Generator : U-Net")
 
 
 ## Pix2pix with PyTorch
