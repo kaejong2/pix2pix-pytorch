@@ -45,7 +45,7 @@
 * Generated images are saved in the **images** subfolder along with **[result directory]** folder.
 
 ## Results
-  ![alt text](./git_img/retinal_result.png "Generated vessel to fundus by pix2pixGAN")
+  ![alt text](./git_img/retiinal_result.png "Generated vessel to fundus by pix2pixGAN")
 
     1st row: input - Vessel segmentation map 
     2nd row: output - Fake Fundus Photo
